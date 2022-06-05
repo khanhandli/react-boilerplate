@@ -1,7 +1,9 @@
 const routes = {
-  home: "/",
-  login: "/login",
-  register: "/register",
+    login: '/login',
+    register: '/register',
+
+    home: '/',
+    todo: '/main/todo',
 };
 
 export default routes;

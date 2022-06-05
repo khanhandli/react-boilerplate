@@ -67,3 +67,7 @@ body {
   background: white !important;
 }
 
+.framed-layout #root .ant-layout.gx-app-layout {
+  border-radius: 12px !important;
+}
+
