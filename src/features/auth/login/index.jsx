@@ -6,6 +6,7 @@ import config from '@/config';
 import { Button, Checkbox, Form, Input } from 'antd';
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import SocialLogin from '../socialLogin';
 const LoginPage = () => {
     const dispatch = useDispatch();
     const auth = useSelector((state) => state?.auth);
@@ -71,44 +72,8 @@ const LoginPage = () => {
                                 </Form.Item>
                                 <div className="gx-flex-row gx-justify-content-between">
                                     <span>hoặc đăng nhập bằng</span>
-                                    <ul className="gx-social-link">
-                                        <li>
-                                            {/* <Icon
-                                            type="google"
-                                            onClick={() => {
-                                                this.props.showAuthLoader();
-                                                this.props.userGoogleSignIn();
-                                            }}
-                                        /> */}
-                                        </li>
-                                        <li>
-                                            {/* <Icon
-                                            type="facebook"
-                                            onClick={() => {
-                                                this.props.showAuthLoader();
-                                                this.props.userFacebookSignIn();
-                                            }}
-                                        /> */}
-                                        </li>
-                                        <li>
-                                            {/* <Icon
-                                            type="github"
-                                            onClick={() => {
-                                                this.props.showAuthLoader();
-                                                this.props.userGithubSignIn();
-                                            }}
-                                        /> */}
-                                        </li>
-                                        <li>
-                                            {/* <Icon
-                                            type="twitter"
-                                            onClick={() => {
-                                                this.props.showAuthLoader();
-                                                this.props.userTwitterSignIn();
-                                            }}
-                                        /> */}
-                                        </li>
-                                    </ul>
+                                    <SocialLogin />
+                                    
                                 </div>
                             </Form>
                         </div>

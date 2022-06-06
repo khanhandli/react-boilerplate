@@ -7,6 +7,7 @@ import AppLink from '@/components/AppLink';
 import config from '@/config';
 import wLogo from '@/assets/images/w-logo.png';
 import Logo from '@/assets/images/logo.png';
+import SocialLogin from '../socialLogin';
 
 const RegisterPage = () => {
     const dispatch = useDispatch();
@@ -80,44 +81,7 @@ const RegisterPage = () => {
                             </Form.Item>
                             <div className="gx-flex-row gx-justify-content-between">
                                 <span>hoặc đăng nhập bằng</span>
-                                <ul className="gx-social-link">
-                                    <li>
-                                        {/* <Icon
-                                            type="google"
-                                            onClick={() => {
-                                                this.props.showAuthLoader();
-                                                this.props.userGoogleSignIn();
-                                            }}
-                                        /> */}
-                                    </li>
-                                    <li>
-                                        {/* <Icon
-                                            type="facebook"
-                                            onClick={() => {
-                                                this.props.showAuthLoader();
-                                                this.props.userFacebookSignIn();
-                                            }}
-                                        /> */}
-                                    </li>
-                                    <li>
-                                        {/* <Icon
-                                            type="github"
-                                            onClick={() => {
-                                                this.props.showAuthLoader();
-                                                this.props.userGithubSignIn();
-                                            }}
-                                        /> */}
-                                    </li>
-                                    <li>
-                                        {/* <Icon
-                                            type="twitter"
-                                            onClick={() => {
-                                                this.props.showAuthLoader();
-                                                this.props.userTwitterSignIn();
-                                            }}
-                                        /> */}
-                                    </li>
-                                </ul>
+                                <SocialLogin />
                             </div>
                         </Form>
                     </div>
