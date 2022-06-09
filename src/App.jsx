@@ -22,8 +22,6 @@ function App() {
 
         if (!token && !rf_token) {
             naviagate('/login');
-        } else {
-            naviagate('/');
         }
         const timeOutLoading = setTimeout(() => {
             setLoading(false);

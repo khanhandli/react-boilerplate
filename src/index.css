@@ -71,3 +71,12 @@ body {
   border-radius: 12px !important;
 }
 
+
+* ul#option-menu {
+  max-height: unset;
+}
+
+.gx-module-nav li span {
+  padding-top: 5px !important;
+
+}
