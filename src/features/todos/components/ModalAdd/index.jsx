@@ -38,7 +38,7 @@ const ModalAdd = ({ open, setOpenModalAdd, callback, setCallback, labels }) => {
         const res = await postDataAPI('v2/todos', dataSend);
         if (res.status === 201) {
             setCallback(!callback);
-            Notification('success', res.data.msg);
+            Notification('success', res.data.message);
             form.resetFields();
             setOpenModalAdd(false);
         }

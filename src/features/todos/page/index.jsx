@@ -1,16 +1,16 @@
+import { getDataAPI, putDataAPI } from '@/apis';
 import AppModuleHeader from '@/components/AppModuleHeader';
 import Auxiliary from '@/components/Auxiliary';
 import CircularProgress from '@/components/CircularProgress';
 import { Checkbox, Drawer, Dropdown, Menu, message as msgAntd } from 'antd';
 import React from 'react';
-import { getDataAPI, putDataAPI } from '@/apis';
+import { useSelector } from 'react-redux';
+import useDebounce from '../../../hooks/useDeboune';
+import ModalAdd from '../components/ModalAdd';
 import ToDoDetail from '../components/Todo/ToDoDetail';
 import ToDoList from '../components/Todo/ToDoList';
 import ToDoSideBar from '../components/ToDoSideBar';
-import filtersList from '../data/filters';
 import options from '../data/options';
-import todoList from '../data/todo';
-import todoConversation from '../data/todoConversation';
 import {
     getAllTodo,
     getImportantToDo,
@@ -19,8 +19,6 @@ import {
     getUnselectedAllTodo,
     getUnStarredTodo,
 } from '../handles';
-import useDebounce from '../../../hooks/useDeboune';
-import ModalAdd from '../components/ModalAdd';
 
 const ITEM_HEIGHT = 34;
 
@@ -36,40 +34,18 @@ const TodoPage = () => {
     const [selectedToDos, setSelectedToDos] = React.useState(0);
 
     const [optionName, setOptionName] = React.useState('Không chọn');
-    const [showMessage, setShowMessage] = React.useState(false);
-    const [addTodo, setAddTodo] = React.useState(false);
-    const [labelMenuState, setLabelMenuState] = React.useState(false);
-    const [optionMenuState, setOptionMenuState] = React.useState(false);
     const [loader, setLoader] = React.useState(false);
-    const [message, setMessage] = React.useState('');
 
     const [itemSelected, setItemSelected] = React.useState(null);
-
-    const [conversation, setConversation] = React.useState([]);
-    const [alertMessage, setAlertMessage] = React.useState('');
-    const [user, setUser] = React.useState({
-        name: 'Robert Johnson',
-        email: 'robert.johnson@example.com',
-        avatar: 'https://via.placeholder.com/150x150',
-    });
 
     const [callback, setCallback] = React.useState(false);
     const debouncedSearchTerm = useDebounce(searchTodo, 500);
     const [openModalAdd, setOpenModalAdd] = React.useState(false);
 
+    const auth = useSelector((state) => state.auth);
+
     const onToggleDrawer = () => {
         setDrawerState(!drawerState);
-    };
-
-    const handleSearchTodo = (searchText) => {
-        if (searchText === '') {
-            setToDos(allToDos.filter((todo) => !todo.deleted));
-        } else {
-            const searchToDos = allToDos.filter(
-                (todo) => !todo.deleted && todo.title.toLowerCase().indexOf(searchText.toLowerCase()) > -1
-            );
-            setToDos(searchToDos);
-        }
     };
 
     const updateSearch = (evt) => {
@@ -89,39 +65,26 @@ const TodoPage = () => {
         setItemSelected(null);
         switch (e.key) {
             case '1':
-                handleRequestClose();
                 getAllTodo(allToDos, setToDos, setSelectedToDos, setAllToDos, setOptionName);
                 break;
             case '2':
-                handleRequestClose();
                 getUnselectedAllTodo(allToDos, setToDos, setSelectedToDos, setAllToDos, setOptionName);
                 break;
             case '3':
-                handleRequestClose();
                 getStarredToDo(allToDos, setToDos, setSelectedToDos, setOptionName);
                 break;
             case '4':
-                handleRequestClose();
                 getUnStarredTodo(allToDos, setToDos, setSelectedToDos, setOptionName);
                 break;
             case '5':
-                handleRequestClose();
                 getImportantToDo(allToDos, setToDos, setSelectedToDos, setOptionName);
                 break;
             case '6':
-                handleRequestClose();
                 getUnimportantToDo(allToDos, setToDos, setSelectedToDos, setOptionName);
                 break;
             default:
                 return '';
         }
-    };
-
-    const handleRequestClose = () => {
-        setShowMessage(false);
-        setAddTodo(false);
-        setLabelMenuState(false);
-        setOptionMenuState(false);
     };
 
     const optionMenu = () => {
@@ -135,16 +98,6 @@ const TodoPage = () => {
             />
         );
     };
-
-    function removeLabel(todo, label) {
-        todo.labels.splice(todo.labels.indexOf(label), 1);
-        return todo.labels;
-    }
-
-    function addLabel(todo, label) {
-        todo.labels = todo.labels.concat(label);
-        return todo.labels;
-    }
 
     const onLabelMenuItemSelect = async (e) => {
         const labelId = +e.key;
@@ -171,10 +124,6 @@ const TodoPage = () => {
         const items = labels.map((label) => ({ label: label.title, key: label.id }));
         return <Menu onClick={onLabelMenuItemSelect} items={items} />;
     };
-
-    function getToDoConversation(id) {
-        return todoConversation.find((conversation) => conversation.id === id);
-    }
 
     const getLabels = React.useCallback(async () => {
         const res = await getDataAPI('v2/labels');
@@ -214,6 +163,67 @@ const TodoPage = () => {
         }, 1000);
     }, []);
 
+    const onTodoChecked = React.useCallback(
+        (data) => {
+            data.selected = !data.selected;
+            let selectedToDos = 0;
+            const toDos = allToDos.map((todo) => {
+                if (todo.selected) {
+                    selectedToDos++;
+                }
+                if (todo.id === data.id) {
+                    if (todo.selected) {
+                        selectedToDos++;
+                    }
+                    return data;
+                } else {
+                    return todo;
+                }
+            });
+            if (data.selected && !allToDos.every((todo) => todo.selected)) {
+                setItemSelected(data);
+            } else {
+                setItemSelected(null);
+            }
+            setSelectedToDos(selectedToDos);
+            setAllToDos(toDos);
+        },
+        [selectedToDos, allToDos]
+    );
+
+    const onTodoSelect = React.useCallback((todo) => {
+        setCurrentTodo(todo);
+        setLoader(true);
+
+        setTimeout(() => {
+            setLoader(false);
+        }, 1500);
+    }, []);
+
+    const onMarkAsStart = React.useCallback(
+        async (data) => {
+            const res = await putDataAPI(`v2/todos/${data.id}`, {
+                starred: data?.starred,
+            });
+            if (res.status) {
+                setCallback(!callback);
+            }
+        },
+        [callback]
+    );
+
+    const onDeleteLabel = React.useCallback(
+        async (labels, idTodo) => {
+            const res = await putDataAPI(`v2/todos/${idTodo}`, {
+                labels: JSON.stringify(labels.map((label) => label.id)),
+            });
+            if (res.status) {
+                setCallback(!callback);
+            }
+        },
+        [callback]
+    );
+
     return (
         <div className="gx-main-content">
             <div className="gx-app-module">
@@ -242,7 +252,10 @@ const TodoPage = () => {
                             <i className="icon icon-menu gx-icon-btn" aria-label="Menu" onClick={onToggleDrawer} />
                         </span>
                         <AppModuleHeader
-                            disabled={currentTodo}
+                            callback={callback}
+                            setCallback={setCallback}
+                            setLoader={setLoader}
+                            disabled={currentTodo ? true : false}
                             placeholder="Nhập tên công việc"
                             // user={this.state.user}
                             onChange={updateSearch}
@@ -291,75 +304,21 @@ const TodoPage = () => {
                             </div>
                         ) : currentTodo === null ? (
                             <ToDoList
-                                onDeleteLabel={async (labels, idTodo) => {
-                                    const res = await putDataAPI(`v2/todos/${idTodo}`, {
-                                        labels: JSON.stringify(labels.map((label) => label.id)),
-                                    });
-                                    if (res.status) {
-                                        setCallback(!callback);
-                                    }
-                                }}
+                                onDeleteLabel={(labels, idTodo) => onDeleteLabel(labels, idTodo)}
                                 allToDos={toDos && toDos.length > 0 ? toDos : allToDos}
-                                // onSortEnd={({ oldIndex, newIndex }) => {
-                                //     setToDos(toDos, oldIndex, newIndex);
-                                // }}
-                                onMarkAsStart={async (data) => {
-                                    const res = await putDataAPI(`v2/todos/${data.id}`, {
-                                        starred: data?.starred,
-                                    });
-                                    if (res.status) {
-                                        setCallback(!callback);
-                                    }
-                                }}
-                                onTodoSelect={(todo) => {
-                                    let conversationList = getToDoConversation(todo.id);
-                                    if (conversationList) {
-                                        conversationList = conversationList.conversationData;
-                                    } else {
-                                        conversationList = [];
-                                    }
-                                    setCurrentTodo(todo);
-                                    setLoader(true);
-                                    setConversation(conversationList);
-
-                                    setTimeout(() => {
-                                        setLoader(false);
-                                    }, 1500);
-                                }}
-                                onTodoChecked={(data) => {
-                                    data.selected = !data.selected;
-                                    let selectedToDos = 0;
-                                    const toDos = allToDos.map((todo) => {
-                                        if (todo.selected) {
-                                            selectedToDos++;
-                                        }
-                                        if (todo.id === data.id) {
-                                            if (todo.selected) {
-                                                selectedToDos++;
-                                            }
-                                            return data;
-                                        } else {
-                                            return todo;
-                                        }
-                                    });
-                                    if (data.selected && !allToDos.every((todo) => todo.selected)) {
-                                        setItemSelected(data);
-                                    } else {
-                                        setItemSelected(null);
-                                    }
-                                    setSelectedToDos(selectedToDos);
-                                    setAllToDos(toDos);
-                                }}
+                                onMarkAsStart={(data) => onMarkAsStart(data)}
+                                onTodoSelect={(todo) => onTodoSelect(todo)}
+                                onTodoChecked={(data) => onTodoChecked(data)}
                                 useDragHandle={true}
                             />
                         ) : (
                             <ToDoDetail
+                                auth={auth}
                                 todo={currentTodo}
-                                user={user}
                                 labels={labels}
                                 callback={callback}
                                 setCallback={setCallback}
-                                conversation={conversation}
+                                setCurrentTodo={setCurrentTodo}
                             />
                         )}
                     </div>

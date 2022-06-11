@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-const AppModuleHeader = ({ placeholder, onChange, value, disabled }) => {
+const AppModuleHeader = ({ placeholder, onChange, value, disabled, callback, setCallback, setLoader }) => {
     return (
         <div className="gx-module-box-header-inner">
             <div className="gx-search-bar gx-lt-icon-search-bar-lg gx-module-search-bar gx-d-none gx-d-sm-block">
@@ -20,6 +20,18 @@ const AppModuleHeader = ({ placeholder, onChange, value, disabled }) => {
                 </div>
             </div>
             <div className="gx-module-box-header-right">
+                <span
+                    className="gx-fs-xl"
+                    onClick={() => {
+                        setLoader(true);
+                        setTimeout(() => {
+                            setCallback(!callback);
+                            setLoader(false);
+                        }, 1000);
+                    }}
+                >
+                    <i className="icon icon-frequent gx-icon-btn" />
+                </span>
                 <span className="gx-fs-xl">
                     <i className="icon icon-apps gx-icon-btn" />
                 </span>

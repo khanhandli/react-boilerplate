@@ -1,8 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import moment from 'moment';
 import filters from '../data/filters';
-console.log('🚀 ~ file: GetNavFilters.jsx ~ line 5 ~ filters', filters);
 
 const GetNavFilters = ({ filterId, setFilter }) => {
     return filters.map((filter, index) => (

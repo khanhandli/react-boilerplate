@@ -1,7 +1,7 @@
 import { notification } from 'antd';
 
 export const Notification = (status, msg) => {
-    if (notification[status] !== 'error') {
+    if (status !== 'error') {
         notification[status]({
             message: msg,
         });

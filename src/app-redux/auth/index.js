@@ -7,6 +7,7 @@ const AUTH_LOGIN = 'auth_login';
 const AUTH_LOGIN_WITH_TOKEN = 'auth_login_with_token';
 const AUTH_LOGOUT = 'auth_logout';
 const VERIFY_EMAIL = 'verify_email';
+export const SET_SOCKET = 'set_socket';
 
 const AuthActions = {
     setUser(user) {
@@ -26,7 +27,7 @@ const AuthActions = {
                     password,
                 });
                 if (res.status === 201) {
-                    Notification('success', res.data.msg);
+                    Notification('success', res.data.message);
                     dispatch({ type: AUTH_LOGIN, payload: res.data });
                     dispatch(Action(AUTH_SET_LOADING, false));
                     localStorage.setItem('rf_token', res.data.tokens.refresh.token);
@@ -45,13 +46,15 @@ const AuthActions = {
                     email,
                     password,
                 });
+                console.log('🚀 ~ file: index.js ~ line 49 ~ res', res);
                 if (res.status === 200) {
-                    Notification('success', res.data.msg);
+                    Notification('success', res.data.message);
                     dispatch({ type: AUTH_LOGIN, payload: res.data });
                     dispatch(Action(AUTH_SET_LOADING, false));
                     localStorage.setItem('rf_token', res.data.tokens.refresh.token);
                 }
             } catch (error) {
+                console.log('🚀 ~ file: index.js ~ line 36 ~ error', error);
                 Notification('error', error);
                 dispatch(Action(AUTH_SET_LOADING, false));
             }
@@ -96,6 +99,7 @@ const initialState = {
     user: {},
     token: '',
     loading: false,
+    socket: null,
 };
 
 function reducer(state = initialState, action) {
@@ -112,6 +116,8 @@ function reducer(state = initialState, action) {
             return { ...state, ...initialState };
         case VERIFY_EMAIL:
             return { ...state, user: { ...state.user, isEmailVerified: action.payload } };
+        case SET_SOCKET:
+            return { ...state, socket: action.payload };
         default:
             return state;
     }

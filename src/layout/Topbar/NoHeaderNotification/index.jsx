@@ -25,7 +25,7 @@ const NoHeaderNotification = () => {
             setLoading(true);
             const res = await postDataAPI(`v1/auth/send-verification-email`, {}, token);
             if (res.status === 200) {
-                Notification('success', res.data.msg);
+                Notification('success', res.data.message);
                 setVerify(true);
                 setLoading(false);
             }
@@ -42,7 +42,7 @@ const NoHeaderNotification = () => {
             const res = await postDataAPI(`v1/auth/verify-email?token=` + tokenVerify, {}, token);
             if (res.status === 200) {
                 dispatch(dispatch({ type: 'verify_email', payload: true }));
-                Notification('success', res.data.msg);
+                Notification('success', res.data.message);
                 setVisible(false);
                 setLoading(false);
             }

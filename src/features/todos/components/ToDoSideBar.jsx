@@ -53,4 +53,4 @@ const ToDoSideBar = ({ labels, filter, setFilter, setOpenModalAdd }) => {
 
 ToDoSideBar.propTypes = {};
 
-export default ToDoSideBar;
+export default React.memo(ToDoSideBar);

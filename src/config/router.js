@@ -4,6 +4,7 @@ const routes = {
 
     home: '/',
     todo: '/main/todo',
+    notes: '/main/notes',
 };
 
 export default routes;

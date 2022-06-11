@@ -1,5 +1,5 @@
-import CustomScrollbars from '@/components/CustomScrollbars';
 import React from 'react';
+import CustomScrollbars from '@/components/CustomScrollbars';
 
 import ToDoItem from '../ToDoItem';
 
@@ -23,4 +23,4 @@ const ToDoList = ({ allToDos, onTodoSelect, onTodoChecked, onMarkAsStart, onDele
     );
 };
 
-export default ToDoList;
+export default React.memo(ToDoList);

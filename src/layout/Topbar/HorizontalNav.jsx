@@ -37,6 +37,11 @@ const items = [
                 icon: <i className="icon icon-check-square-o" />,
             },
             {
+                label: 'Ghi chú',
+                key: 'main/notes',
+                icon: <i className="icon icon-copy" />,
+            },
+            {
                 label: 'Mạng xã hội',
                 key: 'main/personal',
                 icon: <i className="icon icon-widgets" />,
