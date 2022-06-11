@@ -1,8 +1,8 @@
 import React from 'react';
 import { Avatar, Badge, Checkbox } from 'antd';
 import PropTypes from 'prop-types';
-
-const ToDoItem = ({ todo, onTodoSelect, onTodoChecked, onMarkAsStart }) => {
+import { CloseCircleOutlined } from '@ant-design/icons';
+const ToDoItem = ({ todo, onTodoSelect, onTodoChecked, onMarkAsStart, onDeleteLabel }) => {
     const { users, labels, title, completed, starred, selected } = todo;
 
     return (
@@ -44,14 +44,37 @@ const ToDoItem = ({ todo, onTodoSelect, onTodoChecked, onMarkAsStart }) => {
                             labels?.length > 0 &&
                             labels.map((label, index) => {
                                 return (
-                                    <Badge key={index} count={label.title} style={{ backgroundColor: label.color }} />
+                                    <Badge
+                                        key={index}
+                                        count={
+                                            <div className="gx-text-white gx-px-2 gx-py-1 gx-rounded-xxl">
+                                                {label.title}
+                                                <CloseCircleOutlined
+                                                    onClick={(e) => {
+                                                        e.preventDefault();
+                                                        e.stopPropagation();
+                                                        onDeleteLabel(
+                                                            todo.labels.filter((lb) => lb.id !== label.id),
+                                                            todo.id
+                                                        );
+                                                    }}
+                                                    style={{ fontWeight: 'bold', marginLeft: '6px' }}
+                                                />
+                                            </div>
+                                        }
+                                        style={{ backgroundColor: label.color }}
+                                    />
                                 );
                             })}
                     </div>
                 </div>
                 <div className="gx-module-todo-right">
                     {users && users?.length > 0 ? (
-                        users.map((user, index) => <Avatar key={index} alt={user.name} src={user.avatar} />)
+                        users.map((user, index) => (
+                            <Avatar.Group maxCount={2} key={index}>
+                                <Avatar alt={user.name} src={user.avatar} />
+                            </Avatar.Group>
+                        ))
                     ) : (
                         <Avatar>U</Avatar>
                     )}

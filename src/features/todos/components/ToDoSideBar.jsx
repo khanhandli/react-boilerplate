@@ -5,7 +5,7 @@ import GetNavFilters from './GetNavFilters';
 import GetNavLabels from './GetNavLabels';
 import PropTypes from 'prop-types';
 
-const ToDoSideBar = ({ labels, filter, setFilter }) => {
+const ToDoSideBar = ({ labels, filter, setFilter, setOpenModalAdd }) => {
     return (
         <div className="gx-module-side">
             <div className="gx-module-side-header">
@@ -21,7 +21,7 @@ const ToDoSideBar = ({ labels, filter, setFilter }) => {
                             variant="raised"
                             type="primary"
                             className="gx-btn-block"
-                            onClick={() => setAddTodo(true)}
+                            onClick={() => setOpenModalAdd(true)}
                         >
                             Thêm công việc
                         </Button>
@@ -40,10 +40,10 @@ const ToDoSideBar = ({ labels, filter, setFilter }) => {
 
                         <li className="gx-module-nav-label">Lọc</li>
 
-                        <GetNavFilters setFilter={setFilter} filterId={filter.id} />
+                        <GetNavFilters setFilter={setFilter} filterId={filter?.id} />
 
                         <li className="gx-module-nav-label">Nhãn</li>
-                        <GetNavLabels labels={labels} />
+                        <GetNavLabels setFilter={setFilter} filterId={filter.id} labels={labels} />
                     </ul>
                 </CustomScrollbars>
             </div>

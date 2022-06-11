@@ -1,23 +1,14 @@
 import React from 'react';
 
-const GetNavLabels = ({ labels }) => {
+const GetNavLabels = ({ labels, setFilter, filterId }) => {
     return labels.map((label, index) => (
         <li
             key={index}
-            //    onClick={() => {
-            //     const filterMails = this.state.allToDos.filter(todo => todo.labels.includes(label.id));
-            //     this.setState({
-            //       loader: true,
-            //       currentTodo: null,
-            //       toDos: filterMails
-            //     });
-            //     setTimeout(() => {
-            //       this.setState({loader: false});
-            //     }, 1500);
-            //   }
-            //   }
+            onClick={() => {
+                setFilter(label);
+            }}
         >
-            <span className="gx-link">
+            <span className={label.id === Number(filterId) ? 'gx-link active' : 'gx-link'}>
                 <i className={`icon icon-circle gx-text-${label.color}`} />
                 <span>{label.title}</span>
             </span>

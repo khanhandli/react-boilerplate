@@ -10,7 +10,6 @@ import ToDoSideBar from '../components/ToDoSideBar';
 import filtersList from '../data/filters';
 import options from '../data/options';
 import todoList from '../data/todo';
-import labelsInit from '../data/labels';
 import todoConversation from '../data/todoConversation';
 import {
     getAllTodo,
@@ -20,20 +19,21 @@ import {
     getUnselectedAllTodo,
     getUnStarredTodo,
 } from '../handles';
+import useDebounce from '../../../hooks/useDeboune';
+import ModalAdd from '../components/ModalAdd';
+
 const ITEM_HEIGHT = 34;
 
 const TodoPage = () => {
     const [drawerState, setDrawerState] = React.useState(false);
     const [filter, setFilter] = React.useState('-1');
     const [allToDos, setAllToDos] = React.useState([]);
-    console.log('🚀 ~ file: index.jsx ~ line 21 ~ TodoPage ~ allToDos', allToDos);
-    const [labels, setLabels] = React.useState(labelsInit);
+    const [labels, setLabels] = React.useState([]);
     const [searchTodo, setSearchTodo] = React.useState('');
     const [toDos, setToDos] = React.useState([]);
 
     const [currentTodo, setCurrentTodo] = React.useState(null);
     const [selectedToDos, setSelectedToDos] = React.useState(0);
-    console.log('🚀 ~ file: index.jsx ~ line 28 ~ TodoPage ~ selectedToDos', selectedToDos);
 
     const [optionName, setOptionName] = React.useState('Không chọn');
     const [showMessage, setShowMessage] = React.useState(false);
@@ -42,6 +42,8 @@ const TodoPage = () => {
     const [optionMenuState, setOptionMenuState] = React.useState(false);
     const [loader, setLoader] = React.useState(false);
     const [message, setMessage] = React.useState('');
+
+    const [itemSelected, setItemSelected] = React.useState(null);
 
     const [conversation, setConversation] = React.useState([]);
     const [alertMessage, setAlertMessage] = React.useState('');
@@ -52,6 +54,8 @@ const TodoPage = () => {
     });
 
     const [callback, setCallback] = React.useState(false);
+    const debouncedSearchTerm = useDebounce(searchTodo, 500);
+    const [openModalAdd, setOpenModalAdd] = React.useState(false);
 
     const onToggleDrawer = () => {
         setDrawerState(!drawerState);
@@ -70,7 +74,6 @@ const TodoPage = () => {
 
     const updateSearch = (evt) => {
         setSearchTodo(evt.target.value);
-        handleSearchTodo(evt.target.value);
     };
 
     const onAllTodoSelect = () => {
@@ -83,6 +86,7 @@ const TodoPage = () => {
     };
 
     const onOptionMenuItemSelect = (e) => {
+        setItemSelected(null);
         switch (e.key) {
             case '1':
                 handleRequestClose();
@@ -126,7 +130,6 @@ const TodoPage = () => {
             <Menu
                 id="option-menu"
                 onClick={onOptionMenuItemSelect}
-                onClose={handleRequestClose}
                 style={{ maxHeight: ITEM_HEIGHT * 6 }}
                 items={items}
             />
@@ -143,64 +146,94 @@ const TodoPage = () => {
         return todo.labels;
     }
 
-    const onLabelMenuItemSelect = (e) => {
-        const label = +e.key;
-        handleRequestClose();
-        const toDos = allToDos.map((todo) => {
-            if (todo.selected) {
-                if (todo.labels.includes(label.id)) {
-                    return { ...todo, labels: removeLabel(todo, label.id) };
-                } else {
-                    return { ...todo, labels: addLabel(todo, label.id) };
-                }
-            } else {
-                return todo;
-            }
+    const onLabelMenuItemSelect = async (e) => {
+        const labelId = +e.key;
+
+        if (!itemSelected) {
+            msgAntd.error('Vui lòng chọn 1 công việc.');
+            return;
+        }
+
+        if (itemSelected.labels.some((lb) => lb.id === labelId)) {
+            msgAntd.error('Công việc đã có nhãn này!');
+            return;
+        }
+
+        await putDataAPI(`v2/todos/${itemSelected.id}`, {
+            labels: JSON.stringify([...itemSelected.labels.map((item) => item.id), labelId]),
         });
-        setAlertMessage('Label Updated Successfully');
-        setShowMessage(true);
-        setToDos(toDos);
+        msgAntd.success('Cập nhật nhãn thành công!');
+        setCallback(!callback);
+        setSelectedToDos(0);
     };
 
     const labelMenu = () => {
         const items = labels.map((label) => ({ label: label.title, key: label.id }));
-        return <Menu onClick={onLabelMenuItemSelect} onClose={handleRequestClose} items={items} />;
+        return <Menu onClick={onLabelMenuItemSelect} items={items} />;
     };
 
     function getToDoConversation(id) {
         return todoConversation.find((conversation) => conversation.id === id);
     }
 
-    // const getLabels = async() => {
-    //     const res = await getDataAPI('/labels');
-    // }
+    const getLabels = React.useCallback(async () => {
+        const res = await getDataAPI('v2/labels');
+        if (res.status === 200) {
+            setLabels(res.data);
+        }
+    }, []);
+    React.useEffect(() => {
+        getLabels();
+    }, []);
 
-    const getTodos = async () => {
-        setLoader(true);
-        const res = await getDataAPI(`v2/todos?page=1&size=10&${filter ? 'filter=' + [filter?.handle] : ''}`);
+    const getTodos = React.useCallback(async () => {
+        const res = await getDataAPI(
+            `v2/todos?page=1&title=${debouncedSearchTerm}&size=10&${
+                filter.id
+                    ? 'filter=' + (typeof Number(filter) == 'number' ? filter.id.toString() : [filter?.handle])
+                    : ''
+            }`
+        );
         if (res.status === 200) {
             setAllToDos(res.data.list_todo);
-            // setToDos(res.data.list_todo);
-            setLoader(false);
+            if (currentTodo?.id) {
+                setCurrentTodo((prev) => res.data.list_todo.find((todo) => todo.id == prev.id));
+            }
         }
-    };
+    }, [filter, debouncedSearchTerm, currentTodo?.id]);
 
     React.useEffect(() => {
         getTodos();
-        // getLabels();
-        // getToDoConversation();
-    }, [filter, callback]);
+    }, [filter, callback, debouncedSearchTerm]);
+
+    React.useEffect(() => {
+        setLoader(true);
+
+        setTimeout(() => {
+            setLoader(false);
+        }, 1000);
+    }, []);
 
     return (
         <div className="gx-main-content">
             <div className="gx-app-module">
                 <div className="gx-d-block gx-d-lg-none">
                     <Drawer placement="left" closable={false} visible={drawerState} onClose={onToggleDrawer}>
-                        <ToDoSideBar filter={filter} setFilter={setFilter} labels={labels} />
+                        <ToDoSideBar
+                            setOpenModalAdd={setOpenModalAdd}
+                            filter={filter}
+                            setFilter={setFilter}
+                            labels={labels}
+                        />
                     </Drawer>
                 </div>
                 <div className="gx-module-sidenav gx-d-none gx-d-lg-flex">
-                    <ToDoSideBar filter={filter} setFilter={setFilter} labels={labels} />
+                    <ToDoSideBar
+                        setOpenModalAdd={setOpenModalAdd}
+                        filter={filter}
+                        setFilter={setFilter}
+                        labels={labels}
+                    />
                 </div>
 
                 <div className="gx-module-box">
@@ -209,7 +242,8 @@ const TodoPage = () => {
                             <i className="icon icon-menu gx-icon-btn" aria-label="Menu" onClick={onToggleDrawer} />
                         </span>
                         <AppModuleHeader
-                            placeholder="Search To Do"
+                            disabled={currentTodo}
+                            placeholder="Nhập tên công việc"
                             // user={this.state.user}
                             onChange={updateSearch}
                             value={searchTodo}
@@ -239,7 +273,7 @@ const TodoPage = () => {
                                     </Auxiliary>
                                 ) : null}
 
-                                {selectedToDos > 0 && (
+                                {itemSelected && selectedToDos > 0 && (
                                     <Dropdown overlay={labelMenu} placement="bottomRight">
                                         <i className="gx-icon-btn icon icon-tag" />
                                     </Dropdown>
@@ -248,6 +282,7 @@ const TodoPage = () => {
                         ) : (
                             <div className="gx-module-box-topbar">
                                 <i className="icon icon-arrow-left gx-icon-btn" onClick={() => setCurrentTodo(null)} />
+                                {currentTodo?.title}
                             </div>
                         )}
                         {loader ? (
@@ -256,15 +291,21 @@ const TodoPage = () => {
                             </div>
                         ) : currentTodo === null ? (
                             <ToDoList
+                                onDeleteLabel={async (labels, idTodo) => {
+                                    const res = await putDataAPI(`v2/todos/${idTodo}`, {
+                                        labels: JSON.stringify(labels.map((label) => label.id)),
+                                    });
+                                    if (res.status) {
+                                        setCallback(!callback);
+                                    }
+                                }}
                                 allToDos={toDos && toDos.length > 0 ? toDos : allToDos}
                                 // onSortEnd={({ oldIndex, newIndex }) => {
                                 //     setToDos(toDos, oldIndex, newIndex);
                                 // }}
                                 onMarkAsStart={async (data) => {
                                     const res = await putDataAPI(`v2/todos/${data.id}`, {
-                                        ...data,
-                                        labels: JSON.stringify(data.labels.map((label) => label.id)),
-                                        users: [],
+                                        starred: data?.starred,
                                     });
                                     if (res.status) {
                                         setCallback(!callback);
@@ -301,6 +342,11 @@ const TodoPage = () => {
                                             return todo;
                                         }
                                     });
+                                    if (data.selected && !allToDos.every((todo) => todo.selected)) {
+                                        setItemSelected(data);
+                                    } else {
+                                        setItemSelected(null);
+                                    }
                                     setSelectedToDos(selectedToDos);
                                     setAllToDos(toDos);
                                 }}
@@ -310,68 +356,22 @@ const TodoPage = () => {
                             <ToDoDetail
                                 todo={currentTodo}
                                 user={user}
+                                labels={labels}
+                                callback={callback}
+                                setCallback={setCallback}
                                 conversation={conversation}
-                                onLabelUpdate={(data, label) => {
-                                    if (data.labels.includes(label.id)) {
-                                        data.labels = removeLabel(data, label.id);
-                                    } else {
-                                        data.labels = addLabel(data, label.id);
-                                    }
-                                    handleRequestClose();
-                                    const toDos = allToDos.map((todo) => {
-                                        if (todo.id === data.id) {
-                                            return data;
-                                        } else {
-                                            return todo;
-                                        }
-                                    });
-
-                                    setAlertMessage('To Do Updated Successfully');
-                                    setShowMessage(true);
-                                    setToDos(toDos);
-                                    setCurrentTodo(data);
-                                }}
-                                onToDoUpdate={(data) => {
-                                    handleRequestClose();
-                                    const toDos = allToDos.map((todo) => {
-                                        if (todo.id === data.id) {
-                                            return data;
-                                        } else {
-                                            return todo;
-                                        }
-                                    });
-                                    setAlertMessage('To Do Updated Successfully');
-                                    setShowMessage(true);
-                                    setToDos(toDos);
-                                    setCurrentTodo(data);
-                                }}
-                                onDeleteToDo={(data) => {
-                                    let selectedToDos = 0;
-                                    const toDos = allToDos.map((todo) => {
-                                        if (todo.selected) {
-                                            selectedToDos++;
-                                        }
-                                        if (data.id === todo.id) {
-                                            if (todo.selected) {
-                                                selectedToDos--;
-                                            }
-                                            return { ...todo, deleted: true };
-                                        } else {
-                                            return todo;
-                                        }
-                                    });
-                                    setAlertMessage('To Do Updated Successfully');
-                                    setShowMessage(true);
-                                    setToDos(toDos.filter((todo) => !todo.deleted));
-                                    setCurrentTodo(null);
-                                    setSelectedToDos(selectedToDos);
-                                }}
                             />
                         )}
                     </div>
                 </div>
             </div>
-            {showMessage && msgAntd.info(<span id="message-id">{alertMessage}</span>, 3, handleRequestClose())}
+            <ModalAdd
+                open={openModalAdd}
+                setOpenModalAdd={setOpenModalAdd}
+                callback={callback}
+                setCallback={setCallback}
+                labels={labels}
+            />
         </div>
     );
 };

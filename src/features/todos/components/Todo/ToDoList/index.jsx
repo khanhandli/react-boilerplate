@@ -3,7 +3,7 @@ import React from 'react';
 
 import ToDoItem from '../ToDoItem';
 
-const ToDoList = ({ allToDos, onTodoSelect, onTodoChecked, onMarkAsStart }) => {
+const ToDoList = ({ allToDos, onTodoSelect, onTodoChecked, onMarkAsStart, onDeleteLabel }) => {
     return (
         <div className="gx-module-list">
             <CustomScrollbars className="gx-module-content-scroll">
@@ -12,6 +12,7 @@ const ToDoList = ({ allToDos, onTodoSelect, onTodoChecked, onMarkAsStart }) => {
                         key={index}
                         index={index}
                         todo={todo}
+                        onDeleteLabel={onDeleteLabel}
                         onTodoSelect={onTodoSelect}
                         onMarkAsStart={onMarkAsStart}
                         onTodoChecked={onTodoChecked}
