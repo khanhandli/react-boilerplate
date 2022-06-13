@@ -7,10 +7,34 @@ import ColumnHeader from './ColumnHeader';
 import AddCard from './AddCard';
 import { NotesActions } from '@/app-redux/notes';
 
+function withDroppable(Component) {
+    return function WrapperComponent({ children, ...droppableProps }) {
+        return (
+            <Droppable {...droppableProps}>
+                {(provided) => (
+                    <Component ref={provided.innerRef} {...provided.droppableProps}>
+                        {children}
+                        <div style={{ display: 'none' }}> {provided.placeholder}</div>
+                    </Component>
+                )}
+            </Droppable>
+        );
+    };
+}
+
+const ColumnEmptyPlaceholder = React.forwardRef((props, ref) => (
+    <div ref={ref} style={{ minHeight: 'inherit', height: 'inherit' }} {...props} />
+));
+
+const DroppableColumn = withDroppable(ColumnEmptyPlaceholder);
+
 const Column = ({ id: columnId, cards, index, title, handleOnDeleteColumn, handleOnEditColumn }) => {
     const dispatch = useDispatch();
 
-    const handleOnAddCard = (columnId) => (title) => dispatch(NotesActions.addCard({ title, columnId }));
+    const handleOnAddCard = React.useCallback(
+        (columnId) => (title) => dispatch(NotesActions.addCard({ title, columnId })),
+        []
+    );
 
     const handleOnDeleteCard = (columnId) => (cardId) => dispatch(NotesActions.deleteCard({ columnId, cardId }));
 
@@ -23,17 +47,8 @@ const Column = ({ id: columnId, cards, index, title, handleOnDeleteColumn, handl
                     <div
                         {...provided.draggableProps}
                         ref={provided.innerRef}
+                        className="column-style"
                         style={{
-                            backgroundColor: '#e3e3e3',
-                            position: 'relative',
-                            display: 'inline-flex',
-                            maxHeight: '100%',
-                            flexDirection: 'column',
-                            borderRadius: '10px',
-                            maxWidth: 400,
-                            width: 400,
-                            margin: '0 10px',
-                            padding: '15px',
                             ...provided.draggableProps.style,
                         }}
                     >
@@ -43,38 +58,34 @@ const Column = ({ id: columnId, cards, index, title, handleOnDeleteColumn, handl
                             onDelete={handleOnDeleteColumn}
                             onEdit={handleOnEditColumn}
                         />
-                        <Droppable droppableId={columnId} type="COLUMN">
-                            {(provided) => {
-                                return (
-                                    <div
-                                        {...provided.droppableProps}
-                                        ref={provided.innerRef}
-                                        style={{
-                                            marginTop: '10px',
-                                            boxSizing: 'border-box',
-                                            overflowY: 'auto',
-                                            width: '100%',
-                                            flex: 1,
-                                        }}
-                                    >
-                                        {cards?.map((card, index) => {
-                                            return (
-                                                <Card
-                                                    {...{
-                                                        card,
-                                                        index,
-                                                        onDelete: handleOnDeleteCard(columnId),
-                                                        onSave: handleOnEditCard(columnId),
-                                                    }}
-                                                    key={card.id}
-                                                />
-                                            );
-                                        })}
-                                        {provided.placeholder}
-                                    </div>
-                                );
-                            }}
-                        </Droppable>
+                        <DroppableColumn droppableId={columnId}>
+                            <Droppable droppableId={columnId} index={index}>
+                                {(provided) => {
+                                    return (
+                                        <div
+                                            {...provided.droppableProps}
+                                            ref={provided.innerRef}
+                                            className="gx-mt-2 gx-w-100 custom-scroll-vertical"
+                                        >
+                                            {cards?.map((card, index) => {
+                                                return (
+                                                    <Card
+                                                        {...{
+                                                            card,
+                                                            index,
+                                                            onDelete: handleOnDeleteCard(columnId),
+                                                            onSave: handleOnEditCard(columnId),
+                                                        }}
+                                                        key={card.id}
+                                                    />
+                                                );
+                                            })}
+                                            {provided.placeholder}
+                                        </div>
+                                    );
+                                }}
+                            </Droppable>
+                        </DroppableColumn>
                         <AddCard handleOnAddCard={handleOnAddCard(columnId)} />
                     </div>
                 );

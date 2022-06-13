@@ -108,8 +108,10 @@ function AppLayout({ children }) {
             {getSidebar(navStyle, width)}
             <Layout>
                 {getNavStyles(navStyle)}
-                <Content className={`gx-layout-content ${getContainerClass(navStyle)} `}>
-                    <div className="gx-main-content-wrapper">{children}</div>
+                <Content className={`gx-layout-content ${getContainerClass(navStyle)}`}>
+                    <div className="gx-main-content-wrapper" style={{ overflow: 'auto' }}>
+                        {children}
+                    </div>
                     <Footer>
                         <div className="gx-layout-footer-content">
                             <div className="gx-layout-footer-content">Nguyễn Như Ý - NhuYdev - 2022</div>

@@ -39,11 +39,14 @@ const NotesPage = () => {
     const dispatch = useDispatch();
     const { boards, currentBoard, board = boards[currentBoard] } = useSelector((state) => state.notes);
 
-    const handleOnDragEnd = (result) => result.destination && dispatch(NotesActions.onDragEnd(result));
+    const handleOnDragEnd = (result) => {
+        console.log('🚀 ~ file: index.jsx ~ line 43 ~ handleOnDragEnd ~ result', result);
+        result.destination && dispatch(NotesActions.onDragEnd(result));
+    };
 
     return (
         <CustomScrollbars>
-            <div>
+            <div style={{ display: 'flex', height: 'calc(100vh - 152px)' }}>
                 <DragDropContext onDragEnd={handleOnDragEnd}>
                     <Board id={board.id} columns={board.columns} />
                 </DragDropContext>
@@ -52,5 +55,4 @@ const NotesPage = () => {
     );
 };
 
-//https://codesandbox.io/s/github/nadavpodjarski/trello/tree/master/?file=/src/components/Card.js:35-83
 export default NotesPage;

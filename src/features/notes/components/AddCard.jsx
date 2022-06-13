@@ -1,43 +1,66 @@
-import { Collapse, Card } from 'antd';
+import { Collapse, Card, Input, Divider, Button } from 'antd';
 import React from 'react';
 import InputCard from './InputCard';
 const AddCard = ({ handleOnAddCard }) => {
-    const [open, setOpen] = React.useState(false);
+    const [key, setKey] = React.useState('');
+    const [title, setTitle] = React.useState('');
 
-    const handleOnConfirm = (title) => {
+    const handleOnConfirm = () => {
+        if (!title) return;
+        setKey('');
         handleOnAddCard(title);
+        setTitle('');
     };
+
+    const toggleCollapse = () => {
+        setKey((prev) => (prev === '1' ? '' : '1'));
+    };
+
     return (
-        <div
-            style={{
-                width: '100%',
-                marginTop: '20px',
-            }}
-        >
-            <Collapse accordion={open}>
-                <InputCard
-                    content={'Add Card'}
-                    setOpen={setOpen}
-                    onConfirm={handleOnConfirm}
-                    placeholder={'Add Title'}
-                    multiline
-                    rows={3}
-                />
-            </Collapse>
-            <Collapse accordion={!open}>
-                <Card
-                    style={{
-                        padding: '10px 10px 10px 20px',
-                        background: '#EBECF0',
-                        cursor: 'pointer',
-                    }}
-                    onClick={() => setOpen(!open)}
+        <div>
+            <Divider style={{ marginTop: 0 }} />
+            <Collapse ghost activeKey={key}>
+                <Collapse.Panel
+                    showArrow={false}
+                    header={
+                        <div onClick={toggleCollapse} className="btn_add_card">
+                            + Thêm thẻ
+                        </div>
+                    }
+                    key="1"
                 >
-                    <h1>+ Add a Card</h1>
-                </Card>
+                    <div
+                        style={{
+                            boxShadow: 'rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.06) 0px 1px 2px 0px',
+                            padding: '10px',
+                            borderRadius: '6px',
+                            border: '1px solid #ccc',
+                        }}
+                    >
+                        <Input.TextArea
+                            className="gx-border-0 ant-input gx-chat-textarea"
+                            id="required"
+                            autoFocus
+                            onChange={(e) => setTitle(e.target.value)}
+                            value={title}
+                            rows={2}
+                            placeholder="Nhập tiêu đề thẻ"
+                        />
+                    </div>
+                    <div className="gx-text-right">
+                        <Button
+                            type="primary"
+                            size="small"
+                            onClick={handleOnConfirm}
+                            className="gx-mb-0 gx-mt-2 gx-w-25"
+                        >
+                            Thêm
+                        </Button>
+                    </div>
+                </Collapse.Panel>
             </Collapse>
         </div>
     );
 };
 
-export default AddCard;
+export default React.memo(AddCard);

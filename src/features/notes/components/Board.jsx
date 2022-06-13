@@ -15,50 +15,44 @@ const Board = ({ id: boardId, columns }) => {
     const handleOnEditColumn = (columnId) => (title) => dispatch(NotesActions.editColumn({ title, columnId }));
 
     return (
-        <>
-            <Droppable droppableId={boardId} type="BOARD" direction="horizontal">
-                {(provided) => {
-                    return (
-                        <div
-                            {...provided.droppableProps}
-                            ref={provided.innerRef}
-                            style={{
-                                display: 'flex',
-                                height: '100%',
-                                overflowY: 'hidden',
-                            }}
-                        >
-                            {columns.map(({ id: columnId, cards, title }, index) => (
-                                <div
-                                    style={{
-                                        height: '100%',
-                                        display: 'inline-block',
-                                        verticalAlign: 'top',
+        <Droppable droppableId={boardId} type="BOARD" direction="horizontal">
+            {(provided) => {
+                return (
+                    <div
+                        {...provided.droppableProps}
+                        ref={provided.innerRef}
+                        className="gx-h-100 gx-d-flex custom-scroll-horizontal gx-py-1"
+                    >
+                        {columns.map(({ id: columnId, cards, title }, index) => (
+                            <div
+                                style={{
+                                    height: '100%',
+                                    display: 'inline-block',
+                                    verticalAlign: 'top',
+                                }}
+                                key={columnId}
+                            >
+                                <Column
+                                    {...{
+                                        index,
+                                        id: columnId,
+                                        cards,
+                                        title,
+                                        handleOnDeleteColumn: handleOnDeleteColumn(columnId),
+                                        handleOnEditColumn: handleOnEditColumn(columnId),
                                     }}
                                     key={columnId}
-                                >
-                                    <Column
-                                        {...{
-                                            index,
-                                            id: columnId,
-                                            cards,
-                                            title,
-                                            handleOnDeleteColumn: handleOnDeleteColumn(columnId),
-                                            handleOnEditColumn: handleOnEditColumn(columnId),
-                                        }}
-                                        key={columnId}
-                                    />
-                                </div>
-                            ))}
-                            {provided.placeholder}
-                            <div className={{ marginLeft: '20px' }}>
-                                <AddColumn handleOnAddColumn={handleOnAddColumn} />
+                                />
                             </div>
+                        ))}
+                        {provided.placeholder}
+                        <div className={{ marginLeft: '20px' }}>
+                            <AddColumn handleOnAddColumn={handleOnAddColumn} />
                         </div>
-                    );
-                }}
-            </Droppable>
-        </>
+                    </div>
+                );
+            }}
+        </Droppable>
     );
 };
 

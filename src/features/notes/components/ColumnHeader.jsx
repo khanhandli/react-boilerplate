@@ -21,53 +21,26 @@ const ColumnHeader = ({ title, onDelete, onEdit, ...rest }) => {
     };
 
     return (
-        <div
-            style={{
-                boxSizing: 'border-box',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                textAlign: 'left',
-            }}
-            {...rest}
-        >
+        <div className="gx-d-flex gx-align-items-center gx-justify-content-between gx-text-left" {...rest}>
             {!isInputOpen ? (
-                <div
-                    style={{
-                        flex: 1,
-                        display: 'flex',
-                    }}
-                >
-                    <h1
+                <div className="gx-d-flex">
+                    <h2
                         style={{
                             wordBreak: 'break-all',
                         }}
                         onClick={toggleTitleEditor}
                     >
                         {title}
-                    </h1>
+                    </h2>
                 </div>
             ) : (
-                <div onClick={handleSubmit}>
-                    <form onSubmit={handleSubmit}>
-                        <Input
-                            style={{
-                                background: 'white',
-                                maxHeight: '100%',
-                                boxSizing: 'border-box',
-                                paddingLeft: '20px',
-                                borderRadius: '10px',
-                            }}
-                            value={inputValue}
-                            onChange={onChange}
-                        />
-                    </form>
+                <div>
+                    <Input value={inputValue} onChange={onChange} onBlur={handleSubmit} />
                 </div>
             )}
-            Xóa
-            {/* <IconButton size="small" onClick={onDelete}>
-                <DeleteIcon fontSize="small" />
-            </IconButton> */}
+            <span className="gx-fs-xl" onClick={onDelete}>
+                <i className="icon icon-trash gx-icon-btn" />
+            </span>
         </div>
     );
 };

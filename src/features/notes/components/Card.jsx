@@ -3,16 +3,15 @@ import { Card as CardAntd, Image } from 'antd';
 import EditCard from './EditCard';
 import { Draggable } from 'react-beautiful-dnd';
 const Card = ({ card, index, onDelete, onSave }) => {
-    const [anchorEl, setAnchorEl] = React.useState(null);
+    const [open, setOpen] = React.useState(false);
 
     const handleOnDelete = () => onDelete(card.id);
 
-    const handleOpenEdit = (e) => setAnchorEl(e.currentTarget);
-
-    const handleCloseEdit = () => setAnchorEl(null);
+    const handleOpenEdit = (e) => {
+        setOpen(true);
+    };
 
     const handleOnSave = (newCard) => {
-        setAnchorEl(null);
         onSave(newCard);
     };
 
@@ -22,49 +21,52 @@ const Card = ({ card, index, onDelete, onSave }) => {
                 {(provided, snapshot) => {
                     return (
                         <CardAntd
+                            size="small"
                             ref={provided.innerRef}
                             {...provided.draggableProps}
                             {...provided.dragHandleProps}
+                            className="gx-h-auto gx-mb-3 gx-text-left gx-p-1 card-item"
                             style={{
-                                height: 'auto',
-                                background: 'ivory',
-                                textAlign: 'left',
-                                marginBottom: '20px',
+                                borderRadius: '6px',
+                                boxShadow: 'rgba(0, 0, 0, 0.08) 0px 1px 1px',
                                 ...provided.draggableProps.style,
                             }}
                         >
-                            <Image src={card.img} style={{ height: 'auto', maxHeight: 50 }} title="" alt="" />
-                            <CardAntd
-                                style={{
-                                    boxSizing: 'border-box',
-                                    display: 'flex',
-                                    padding: '20px',
-                                }}
-                            >
-                                <h1 style={{ flex: 1, wordBreak: 'break-all', whiteSpace: 'normal' }}>{card.title}</h1>
+                            {/* <Image src={card.img} style={{ height: 'auto', maxHeight: 50 }} title="" alt="" /> */}
+                            <div className="gx-d-flex gx-p-0 gx-m-0">
+                                <div style={{ flex: 1, wordBreak: 'break-all', whiteSpace: 'normal' }}>
+                                    {card.title}
+                                </div>
                                 <div>
                                     <div
                                         style={{
                                             display: 'flex',
-                                            gap: '20px',
+                                            gap: '14px',
+                                            flexDirection: 'column',
                                         }}
                                     >
-                                        <div>Sửa</div>
-                                        <div>Xóa</div>
-                                        {/* <IconButton size="small" onClick={handleOpenEdit}>
-                                            <EditIcon fontSize="small" />
-                                        </IconButton>
-                                        <IconButton size="small" onClick={handleOnDelete}>
-                                            <DeleteIcon fontSize="small" />
-                                        </IconButton> */}
+                                        <span
+                                            className="gx-fs-md gx-pointer btn_card_edit gx-d-none"
+                                            onClick={handleOpenEdit}
+                                        >
+                                            <i className="icon icon-edit " />
+                                        </span>
                                     </div>
                                 </div>
-                            </CardAntd>
+                            </div>
                         </CardAntd>
                     );
                 }}
             </Draggable>
-            {anchorEl && <EditCard anchorEl={anchorEl} onClose={handleCloseEdit} card={card} onSave={handleOnSave} />}
+            {
+                <EditCard
+                    handleOnDelete={handleOnDelete}
+                    open={open}
+                    setOpen={setOpen}
+                    card={card}
+                    onSave={handleOnSave}
+                />
+            }
         </>
     );
 };

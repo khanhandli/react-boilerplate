@@ -1,6 +1,6 @@
 import React from 'react';
 
-const InputCard = () => {
+const InputCard = ({ setOpen, content, onConfirm, placeholder, ...rest }) => {
     return <div>InputCard</div>;
 };
 
