@@ -47,7 +47,7 @@ function App() {
 
                 return <Route key={index} path={route.path} element={<Page />} />;
             })}
-            <Route path="*" element={<ErrorPage />} />
+            {token && <Route path="*" element={<ErrorPage />} />}
         </Routes>
     );
 }

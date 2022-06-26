@@ -8,7 +8,7 @@ const GetNavLabels = ({ labels, setFilter, filterId }) => {
                 setFilter(label);
             }}
         >
-            <span className={label.id === Number(filterId) ? 'gx-link active' : 'gx-link'}>
+            <span className={label.id === Number(filterId.id) && filterId?.color ? 'gx-link active' : 'gx-link'}>
                 <i className={`icon icon-circle gx-text-${label.color}`} />
                 <span>{label.title}</span>
             </span>

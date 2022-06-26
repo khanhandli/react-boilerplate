@@ -46,7 +46,7 @@ const NotesPage = () => {
 
     return (
         <CustomScrollbars>
-            <div style={{ display: 'flex', height: 'calc(100vh - 152px)' }}>
+            <div style={{ display: 'flex', maxHeight: 'calc(100vh - 154px)' }}>
                 <DragDropContext onDragEnd={handleOnDragEnd}>
                     <Board id={board.id} columns={board.columns} />
                 </DragDropContext>

@@ -14,7 +14,7 @@ function withDroppable(Component) {
                 {(provided) => (
                     <Component ref={provided.innerRef} {...provided.droppableProps}>
                         {children}
-                        <div style={{ display: 'none' }}> {provided.placeholder}</div>
+                        {provided.placeholder}
                     </Component>
                 )}
             </Droppable>
@@ -23,7 +23,7 @@ function withDroppable(Component) {
 }
 
 const ColumnEmptyPlaceholder = React.forwardRef((props, ref) => (
-    <div ref={ref} style={{ minHeight: 'inherit', height: 'inherit' }} {...props} />
+    <div ref={ref} className="custom-scroll-vertical" style={{ minHeight: 'inherit', height: 'inherit' }} {...props} />
 ));
 
 const DroppableColumn = withDroppable(ColumnEmptyPlaceholder);
@@ -49,6 +49,7 @@ const Column = ({ id: columnId, cards, index, title, handleOnDeleteColumn, handl
                         ref={provided.innerRef}
                         className="column-style"
                         style={{
+                            maxHeight: 'calc(100vh - 170px)',
                             ...provided.draggableProps.style,
                         }}
                     >
@@ -59,13 +60,13 @@ const Column = ({ id: columnId, cards, index, title, handleOnDeleteColumn, handl
                             onEdit={handleOnEditColumn}
                         />
                         <DroppableColumn droppableId={columnId}>
-                            <Droppable droppableId={columnId} index={index}>
+                            <Droppable droppableId={columnId} type="COLUMN" index={index}>
                                 {(provided) => {
                                     return (
                                         <div
                                             {...provided.droppableProps}
                                             ref={provided.innerRef}
-                                            className="gx-mt-2 gx-w-100 custom-scroll-vertical"
+                                            className="gx-mt-2 gx-w-100"
                                         >
                                             {cards?.map((card, index) => {
                                                 return (

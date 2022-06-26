@@ -28,9 +28,9 @@ const AuthActions = {
                 });
                 if (res.status === 201) {
                     Notification('success', res.data.message);
-                    dispatch({ type: AUTH_LOGIN, payload: res.data });
                     dispatch(Action(AUTH_SET_LOADING, false));
                     localStorage.setItem('rf_token', res.data.tokens.refresh.token);
+                    window.location.href = '/';
                 }
             } catch (error) {
                 Notification('error', error);
@@ -46,15 +46,13 @@ const AuthActions = {
                     email,
                     password,
                 });
-                console.log('🚀 ~ file: index.js ~ line 49 ~ res', res);
                 if (res.status === 200) {
                     Notification('success', res.data.message);
-                    dispatch({ type: AUTH_LOGIN, payload: res.data });
                     dispatch(Action(AUTH_SET_LOADING, false));
                     localStorage.setItem('rf_token', res.data.tokens.refresh.token);
+                    window.location.href = '/';
                 }
             } catch (error) {
-                console.log('🚀 ~ file: index.js ~ line 36 ~ error', error);
                 Notification('error', error);
                 dispatch(Action(AUTH_SET_LOADING, false));
             }
@@ -87,6 +85,7 @@ const AuthActions = {
                 dispatch({ type: AUTH_LOGOUT, payload: {} });
                 dispatch(Action(AUTH_SET_LOADING, false));
                 localStorage.removeItem('rf_token');
+                window.location.href = '/login';
             }
         } catch (error) {
             Notification('error', error);
@@ -108,8 +107,8 @@ function reducer(state = initialState, action) {
             return { ...state, user: action.payload };
         case AUTH_SET_LOADING:
             return { ...state, loading: action.payload };
-        case AUTH_LOGIN:
-            return { ...state, token: action.payload.tokens.access.token, user: action.payload.user };
+        // case AUTH_LOGIN:
+        //     return { ...state, token: action.payload.tokens.access.token, user: action.payload.user };
         case AUTH_LOGIN_WITH_TOKEN:
             return { ...state, token: action.payload.access.token, user: action.payload.user };
         case AUTH_LOGOUT:

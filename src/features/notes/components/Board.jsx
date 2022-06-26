@@ -29,6 +29,7 @@ const Board = ({ id: boardId, columns }) => {
                                     height: '100%',
                                     display: 'inline-block',
                                     verticalAlign: 'top',
+                                    maxHeight: 'calc(100vh - 152px)',
                                 }}
                                 key={columnId}
                             >

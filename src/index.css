@@ -123,11 +123,11 @@ body {
 }
 
 .custom-scroll-vertical {
-    overflow-y: hidden;
+    overflow: hidden;
 }
 
 .column-style:hover .custom-scroll-vertical {
-    overflow-y: auto;
+    overflow-y: auto !important;
 }
 
 .custom-scroll-vertical::-webkit-scrollbar-track {

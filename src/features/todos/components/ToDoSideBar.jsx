@@ -40,10 +40,10 @@ const ToDoSideBar = ({ labels, filter, setFilter, setOpenModalAdd }) => {
 
                         <li className="gx-module-nav-label">Lọc</li>
 
-                        <GetNavFilters setFilter={setFilter} filterId={filter?.id} />
+                        <GetNavFilters setFilter={setFilter} filterId={filter} />
 
                         <li className="gx-module-nav-label">Nhãn</li>
-                        <GetNavLabels setFilter={setFilter} filterId={filter.id} labels={labels} />
+                        <GetNavLabels setFilter={setFilter} filterId={filter} labels={labels} />
                     </ul>
                 </CustomScrollbars>
             </div>

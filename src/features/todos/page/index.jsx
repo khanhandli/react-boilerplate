@@ -138,8 +138,10 @@ const TodoPage = () => {
     const getTodos = React.useCallback(async () => {
         const res = await getDataAPI(
             `v2/todos?page=1&title=${debouncedSearchTerm}&size=10&${
-                filter.id
-                    ? 'filter=' + (typeof Number(filter) == 'number' ? filter.id.toString() : [filter?.handle])
+                filter?.id || filter.id === 0
+                    ? filter?.color
+                        ? 'label=' + filter.id
+                        : 'filter=' + [filter?.handle]
                     : ''
             }`
         );
